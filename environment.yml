@@ -1,0 +1,11 @@
+name: gr8stars
+
+dependencies:
+  - python=3.7
+  - matplotlib
+  - numpy
+  - scipy
+  - astropy
+  - astroquery
+  - pandas
+  - bokeh
