@@ -16,6 +16,7 @@ def load_isochrone(age=1, feh=0., alpha=0.):
         print('isochrone not found for configuration')
         return
 
+    print("loading isochrone file {0}".format(isofile))
     f = open(iso_dir+isofile,'r')
     lines = f.readlines()
     f.close()
@@ -30,9 +31,9 @@ def load_isochrone(age=1, feh=0., alpha=0.):
             ages.append(float(line[5:10]))
             nr.append(int(line[17:]))
             start.append(n+2)
-
-    for ind,age in enumerate(ages):
-        if age == int(age):
+    
+    for ind,a in enumerate(ages):
+        if a == int(age):
             iso = lines[start[ind]:start[ind]+nr[ind]]
 
             Gmag = [float(i[39:47]) for i in iso]
@@ -49,6 +50,11 @@ if __name__ == "__main__":
     data = Table.read('/Users/mbedell/python/gr8stars/gaiadr2/g_lt_8.5-result.fits')
     print('sources with G < 8.5: {0}'.format(len(data)))
 
+    # Parallax uncertainty <= 2.5%:
+    plx_cut = data['parallax_over_error'] > 40
+    data = data[plx_cut]
+    print('sources after parallax error cut: {0}'.format(len(data)))
+
     # Unit error cut following Lindegren+2018 appendix C:
     uniterror = np.sqrt(data['astrometric_chi2_al']/(data['astrometric_n_good_obs_al']-5))
 
@@ -63,32 +69,35 @@ if __name__ == "__main__":
     plt.ylabel('Unit error')
     plt.yscale('log')
     plt.colorbar(label='# periods used')
-    plt.savefig('gaia_cuts_uniterror.pdf')
+    plt.savefig('gaia_cuts_uniterror.pdf', dpi=100)
     plt.clf()
 
     uniterror_cut = uniterror <= 1.2 * np.exp(-0.2 * (data['phot_g_mean_mag'] - 19.5))
     data = data[uniterror_cut]
     print('sources after unit error cut: {0}'.format(len(data)))
 
-    # Parallax uncertainty <= 2.5%:
-    plx_cut = data['parallax_over_error'] > 40
-    data = data[plx_cut]
-    print('sources after parallax error cut: {0}'.format(len(data)))
 
 
     # Isochrone cut:
     iso_colors, iso_mags = load_isochrone(age=1, feh=0., alpha=0.)
+    print(iso_colors)
+    print(iso_mags)
+    iso_colors2, iso_mags2 = load_isochrone(age=1, feh=0.5, alpha=0.)
+    iso_colors3, iso_mags3 = load_isochrone(age=1, feh=0.5, alpha=0.2)
+
 
     abs_gs = data['phot_g_mean_mag'] - 5.*np.log10(1000.0/data['parallax']) + 5.
-    plt.scatter(data['bp_rp'], abs_gs, marker='.', s=4, alpha=0.5)
-    plt.plot(iso_colors, iso_mags, color='k')
-    plt.xlim([0,4])
-    plt.ylim([14,-2])
-    plt.xlabel('Bp - Rp')
-    plt.ylabel('abs G')
-    plt.show()
+    plt.scatter(data['bp_rp'], abs_gs, marker='.', s=4, alpha=0.5, c='k')
+    plt.plot(iso_colors, iso_mags, label=r'1 Gyr, [Fe/H]=0.0, [$\alpha$/H]=0.0')
+    plt.plot(iso_colors2, iso_mags2, label=r'1 Gyr, [Fe/H]=0.5, [$\alpha$/H]=0.0')
+    plt.plot(iso_colors3, iso_mags3, label=r'1 Gyr, [Fe/H]=0.5, [$\alpha$/H]=0.2')
+    plt.xlim([0,3])
+    plt.ylim([12,-2])
+    plt.xlabel('Bp - Rp', fontsize=14)
+    plt.ylabel('abs G', fontsize=14)
+    plt.legend(fontsize=10)
+    plt.savefig('gaia_cuts_isochrone.pdf', dpi=100)
 
-    breakpoint()
 
 
 
