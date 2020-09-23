@@ -51,9 +51,25 @@ if __name__ == "__main__":
     print('sources with G < 8.5: {0}'.format(len(data)))
 
     # Parallax uncertainty <= 2.5%:
-    plx_cut = data['parallax_over_error'] > 40
+    plx_cut = data['parallax_over_error'] >= 40
     data = data[plx_cut]
     print('sources after parallax error cut: {0}'.format(len(data)))
+
+    '''
+    # G < 8:
+    mag_cut = data['phot_g_mean_mag'] <= 8.0
+    data = data[mag_cut]
+    print('sources with G < 8.0: {0}'.format(len(data)))
+    '''
+
+    # Color cut:
+    color_cut = data['bp_rp'] >= 0.5
+    data = data[color_cut]
+    print('sources with Bp-Rp >= 0.5: {0}'.format(len(data)))
+
+    color_cut2 = data['bp_rp'] <= 2.7
+    data = data[color_cut2]
+    print('sources with Bp-Rp <= 2.7: {0}'.format(len(data)))
 
     # Unit error cut following Lindegren+2018 appendix C:
     uniterror = np.sqrt(data['astrometric_chi2_al']/(data['astrometric_n_good_obs_al']-5))
@@ -80,11 +96,8 @@ if __name__ == "__main__":
 
     # Isochrone cut:
     iso_colors, iso_mags = load_isochrone(age=1, feh=0., alpha=0.)
-    print(iso_colors)
-    print(iso_mags)
     iso_colors2, iso_mags2 = load_isochrone(age=1, feh=0.5, alpha=0.)
     iso_colors3, iso_mags3 = load_isochrone(age=1, feh=0.5, alpha=0.2)
-
 
     abs_gs = data['phot_g_mean_mag'] - 5.*np.log10(1000.0/data['parallax']) + 5.
     plt.scatter(data['bp_rp'], abs_gs, marker='.', s=4, alpha=0.5, c='k')
@@ -97,6 +110,28 @@ if __name__ == "__main__":
     plt.ylabel('abs G', fontsize=14)
     plt.legend(fontsize=10)
     plt.savefig('gaia_cuts_isochrone.pdf', dpi=100)
+    plt.clf()
+
+    mask_giants = iso_mags >= 2.
+    iso_function = interpolate.interp1d(iso_colors[mask_giants], 
+                                        iso_mags[mask_giants], kind='cubic')
+    iso_cut = abs_gs >= iso_function(data['bp_rp'].data.compressed())
+    data = data[iso_cut]
+    print('sources after isochrone cut: {0}'.format(len(data)))
+
+
+    abs_gs = data['phot_g_mean_mag'] - 5.*np.log10(1000.0/data['parallax']) + 5.
+    plt.scatter(data['bp_rp'], abs_gs, marker='.', s=4, alpha=0.5, c=data['phot_g_mean_mag'])
+    plt.xlim([0.3,2.7])
+    plt.ylim([10,2.5])
+    plt.xlabel('Bp - Rp', fontsize=14)
+    plt.ylabel('abs G', fontsize=14)
+    plt.colorbar(label='apparent G')
+    plt.savefig('gaia_cuts_cmd.pdf', dpi=100)
+    plt.clf()
+
+
+
 
 
 
