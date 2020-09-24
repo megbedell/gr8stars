@@ -45,14 +45,35 @@ def load_isochrone(age=1, feh=0., alpha=0.):
 
     return bp_rps,gmags
 
+def save_table(data, filename):
+    data['gaia_dr2_id'] = data['source_id']
+    data['gaia_teff'] = data['teff_val']
+    data['gaia_radius'] = data['radius_val']
+    columns = ['gaia_dr2_id', 'ra', 'dec', 'parallax', 'parallax_error', 
+               'pmra', 'pmra_error', 'pmdec', 'pmdec_error', 
+               'phot_g_mean_mag', 'phot_rp_mean_mag',
+               'phot_bp_mean_mag', 'bp_rp', 'radial_velocity',
+               'radial_velocity_error', 'gaia_teff', 'gaia_radius']
+    data[columns].write(filename, overwrite=True)
+    return
+
 if __name__ == "__main__":
     # Read in from query (with cuts on periods used, G mag uncertainty):
     data = Table.read('/Users/mbedell/python/gr8stars/gaiadr2/g_lt_8.5-result.fits')
     print('sources with G < 8.5: {0}'.format(len(data)))
 
-    # Parallax uncertainty <= 2.5%:
-    plx_cut = data['parallax_over_error'] >= 40
+    print(data.colnames)
+
+    '''
+    # Parallax value cut:
+    plx_cut = data['parallax'] >= 10.
     data = data[plx_cut]
+    print('sources with plx > 10: {0}'.format(len(data)))
+    '''
+
+    # Parallax uncertainty <= 2.5%:
+    plx_err_cut = data['parallax_over_error'] >= 40
+    data = data[plx_err_cut]
     print('sources after parallax error cut: {0}'.format(len(data)))
 
     '''
@@ -93,7 +114,6 @@ if __name__ == "__main__":
     print('sources after unit error cut: {0}'.format(len(data)))
 
 
-
     # Isochrone cut:
     iso_colors, iso_mags = load_isochrone(age=1, feh=0., alpha=0.)
     iso_colors2, iso_mags2 = load_isochrone(age=1, feh=0.5, alpha=0.)
@@ -130,7 +150,7 @@ if __name__ == "__main__":
     plt.savefig('gaia_cuts_cmd.pdf', dpi=100)
     plt.clf()
 
-
+    save_table(data, 'gaia_sample.csv')
 
 
 
