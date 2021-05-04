@@ -9,3 +9,5 @@ dependencies:
   - astroquery
   - pandas
   - bokeh
+  - pip:
+    - pykoa

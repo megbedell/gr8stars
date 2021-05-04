@@ -7,8 +7,12 @@ from pykoa.koa import Koa
 from tqdm.auto import tqdm
 
 def filter(rec):
-    return rec[(rec['iodout']=='T') & (rec['specres'] >= 45000)]
+    return rec[(rec['iodout']=='T') & (rec['specres'] >= 60000)]
 
+def coadd_snr(rec):
+    snrs = rec['sig2nois']
+    return np.sqrt(np.sum(snrs**2))
+    
 
 if __name__ == "__main__": 
     # read in sample:  
@@ -25,11 +29,6 @@ if __name__ == "__main__":
                     overwrite=True)
     rec = Table.read('koa_out/{0}.tbl'.format(sample[0]['Gaia Name'].replace(" ", "_")), format='ascii.ipac')
     rec['Gaia Name'] = sample[0]['Gaia Name']
-    sample[0]['n_hires_obs_all'] = len(rec)
-    good = filter(rec)
-    if len(good) >= 1:
-        sample[0]['n_hires_obs_iodout'] = len(good)
-        sample[0]['hires_snr'] = np.max(good['sig2nois'])
 
     hires_obs = rec
 
@@ -44,13 +43,13 @@ if __name__ == "__main__":
                     outpath='koa_out/{0}.tbl'.format(s['Gaia Name'].replace(" ", "_")),
                     overwrite=True)
             rec = Table.read('koa_out/{0}.tbl'.format(s['Gaia Name'].replace(" ", "_")), format='ascii.ipac')
-        sample[i+1]['n_hires_obs_all'] = len(rec)
+        sample[i]['n_hires_obs_all'] = len(rec)
         if len(rec['koaid']) >= 1:
             rec['Gaia Name'] = s['Gaia Name']
             good = filter(rec)
             if len(good) >= 1:
-                sample[i+1]['n_hires_obs_iodout'] = len(good['koaid'])
-                sample[i+1]['hires_snr'] = np.max(good['sig2nois']) # CO-ADD?
+                sample[i]['n_hires_obs_iodout'] = len(good['koaid'])
+                sample[i]['hires_snr'] = coadd_snr(good)
             hires_obs = vstack([hires_obs, rec])
 
     # save:
