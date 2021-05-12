@@ -9,10 +9,10 @@ from tqdm.auto import tqdm
 sample_infile = 'Gr8stars_GaiaeDR3_TIC.tsv'
 sample_outfile = 'Gr8stars_GaiaeDR3_TIC_hires.csv'
 hires_obs_outfile = 'koa_out/all.csv'
-resume = 2121 # index of sample to start querying -- 0 by default
+resume = 0 # index of sample to start querying -- 0 by default
 
 def filter(rec):
-    return rec[(rec['iodout']=='T') & (rec['specres'] >= 60000)]
+    return rec[(rec['iodout']=='T') & (rec['specres'] >= 60000) & (rec['imagetyp'] == 'object')]
 
 def coadd_snr(rec):
     snrs = rec['sig2nois']
@@ -66,5 +66,5 @@ if __name__ == "__main__":
             hires_obs = vstack([hires_obs, rec])
 
     # save:
-    hires_obs.write(hires_obs_outfile, overwrite=True)
     sample.write(sample_outfile, overwrite=True) 
+    hires_obs.write(hires_obs_outfile, overwrite=True)
