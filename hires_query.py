@@ -12,7 +12,9 @@ hires_obs_outfile = 'koa_out/all.csv'
 resume = 0 # index of sample to start querying -- 0 by default
 
 def filter(rec):
-    return rec[(rec['iodout']=='T') & (rec['specres'] >= 60000) & (rec['imagetyp'] == 'object')]
+    conditions = (rec['iodout']=='T') & (rec['specres'] >= 60000) & (rec['imagetyp'] == 'object')
+    conditions = conditions & (rec['waveblue'] <= 3900) & (rec['wavered'] >= 6800) # full spec w CaHK
+    return rec[conditions]
 
 def coadd_snr(rec):
     snrs = rec['sig2nois']
@@ -32,7 +34,10 @@ if __name__ == "__main__":
 
         sample['n_hires_obs_all'] = 0
         sample['n_hires_obs_iodout'] = 0
-        sample['hires_snr'] = 0
+        sample['hires_snr'] = 0.
+        sample['hires_maxres'] = 0.
+        sample['n_hires_obs_maxres_iodout'] = 0
+        sample['hires_maxres_snr'] = 0.
 
         # set up table from query on first target:
         Koa.query_position('HIRES', 'circle {0} {1} 0.5'.format(sample[0]['_RAJ2000'], sample[0]['_DEJ2000']),
@@ -63,6 +68,11 @@ if __name__ == "__main__":
             if len(good) >= 1:
                 sample[i]['n_hires_obs_iodout'] = len(good['koaid'])
                 sample[i]['hires_snr'] = coadd_snr(good)
+                max_res = np.max(good['specres'])  # stats on obs @ maximum resolution only
+                sample[i]['hires_maxres'] = max_res
+                good = good[good['specres'] == max_res]
+                sample[i]['n_hires_obs_maxres_iodout'] = len(good['koaid'])
+                sample[i]['hires_maxres_snr'] = coadd_snr(good) 
             hires_obs = vstack([hires_obs, rec])
 
     # save:
