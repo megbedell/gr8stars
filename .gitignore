@@ -3,3 +3,6 @@
 *.Gaia
 *.tsv
 *.fits
+koa_out/*.tbl
+.ipynb_checkpoints
+.DS_Store

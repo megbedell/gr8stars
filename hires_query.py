@@ -35,6 +35,8 @@ if __name__ == "__main__":
         sample['n_hires_obs_all'] = 0
         sample['n_hires_obs_iodout'] = 0
         sample['hires_snr'] = 0.
+        sample['hires_waveblue'] = 0.
+        sample['hires_wavered'] = 0.
         sample['hires_maxres'] = 0.
         sample['n_hires_obs_maxres_iodout'] = 0
         sample['hires_maxres_snr'] = 0.
@@ -57,7 +59,7 @@ if __name__ == "__main__":
         try: 
             rec = Table.read('koa_out/{0}.tbl'.format(s['EDR3Name'].replace(" ", "_")), format='ascii.ipac')
         except:
-            Koa.query_position('HIRES', 'circle {0} {1} 0.5'.format(s['_RAJ2000'], s['_DEJ2000']),
+            Koa.query_position('HIRES', 'circle {0} {1} 0.00833333333'.format(s['_RAJ2000'], s['_DEJ2000']),  # 30 arcsec
                     outpath='koa_out/{0}.tbl'.format(s['EDR3Name'].replace(" ", "_")),
                     overwrite=True)
             rec = Table.read('koa_out/{0}.tbl'.format(s['EDR3Name'].replace(" ", "_")), format='ascii.ipac')
@@ -68,6 +70,8 @@ if __name__ == "__main__":
             if len(good) >= 1:
                 sample[i]['n_hires_obs_iodout'] = len(good['koaid'])
                 sample[i]['hires_snr'] = coadd_snr(good)
+                sample[i]['hires_waveblue'] = np.nanmin(good['waveblue'])
+                sample[i]['hires_wavered'] = np.nanmax(good['wavered'])
                 max_res = np.max(good['specres'])  # stats on obs @ maximum resolution only
                 sample[i]['hires_maxres'] = max_res
                 good = good[good['specres'] == max_res]
