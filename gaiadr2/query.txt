@@ -1,5 +1,0 @@
-SELECT *
-FROM gaiadr2.gaia_source
-WHERE phot_g_mean_flux_over_error>40
-AND visibility_periods_used>6
-AND phot_g_mean_mag < 8.5
