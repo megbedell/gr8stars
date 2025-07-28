@@ -3,6 +3,14 @@
 *.Gaia
 *.tsv
 *.fits
-koa_out/*.tbl
+*.vot
 .ipynb_checkpoints
 .DS_Store
+old
+hermes
+hides
+fies
+koa_out
+annelies
+sam
+song
