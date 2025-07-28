@@ -13,7 +13,15 @@ gr8stars targets are uniformly selected from Gaia EDR3 to fulfill the following 
 
 The resulting catalog of nearly 3,000 targets encompasses a prime sample for Northern-hemisphere radial velocity exoplanet surveys, precision stellar abundances, future direct imaging surveys, and more.
 
-More information about the project and its sample selection can be found in the first gr8stars paper, [Freckelton et al (2024)](https://ui.adsabs.harvard.edu/abs/2025MNRAS.540.1786F/abstract). Interactive access to the database is hosted on [FlatHUB](https://flathub.flatironinstitute.org/gr8).
+More information about the project and its sample selection can be found in the first gr8stars paper, [Freckelton et al (2024)](https://ui.adsabs.harvard.edu/abs/2025MNRAS.540.1786F/abstract). 
+
+### gr8stars database contents:
+
+Interactive access to the database is hosted on [FlatHUB](https://flathub.flatironinstitute.org/gr8).
+
+For complete documentation of the Gaia parameters captured in the database, please see [the Gaia DR3 data model](https://gea.esac.esa.int/archive/documentation/GDR3/Gaia_archive/chap_datamodel/). Please note that only a selection of Gaia parameters are included in the gr8stars database; if more are needed, they can be found by querying the Gaia archive using the DR3 (or DR2) IDs provided in the database. For information about the stellar parameters derived with PAWS and with SED fitting, see [Freckelton et al (2024)](https://ui.adsabs.harvard.edu/abs/2025MNRAS.540.1786F/abstract).
+
+Further spectroscopic information will be added with the publication of future gr8stars papers.
 
 ### Citation info:
 
